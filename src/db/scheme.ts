@@ -10,8 +10,8 @@ const users = sqliteTable('users', {
   username: text('username').unique(),
   name: text('name'),
   email: text('email').unique(),
-
-  accountId: text('account_id').unique(),
+  avater: text('avater_url'),
+  age: integer('age'),
 
   createdAt: timestamp('created_at').default(new Date()),
   updatedAt: timestamp('updated_at').default(new Date())
@@ -20,12 +20,14 @@ const users = sqliteTable('users', {
 const accounts = sqliteTable('accounts', {
   id: text('id').primaryKey(),
 
-
-
-
-  userId: text('user_id').unique()
+  accessToken: text('access_token').unique(),
+  email: text('email').unique(),
+  avater: text('avater_url'),
 })
 
 const accountLinks = sqliteTable('links', {
   id: text('id').primaryKey(),
+
 })
+
+export { users, accounts, accountLinks }
