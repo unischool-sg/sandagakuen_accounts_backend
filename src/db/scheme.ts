@@ -1,4 +1,5 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { defineRelations } from 'drizzle-orm'
 
 // ========== 列タイプヘルパー ==========
 const timestamp = (name: string) => integer(name, { mode: 'timestamp' })
@@ -143,6 +144,12 @@ const authorizationCodes = sqliteTable('authorization_codes', {
   createdAt: timestamp('created_at').default(new Date()),
 })
 
+const relations = defineRelations({
+  users, gradeLevels, departments,
+  teachers, classes, students,
+  enrollments, sessions, externalIdentities,
+  oauthClients, authorizationCodes
+})
 
 export {
   users,
@@ -157,3 +164,5 @@ export {
   oauthClients,
   authorizationCodes,
 }
+
+export { relations }
