@@ -1,18 +1,32 @@
-import { Hono, Context } from 'hono'
+import { DrizzleD1Database } from "drizzle-orm/d1"
+import type { APIResponse } from "../../../types/api"
+import { CallbackOAuthScheme } from "./scheme"
+import { Google } from "google-oauth-lib"
+import { ContentfulStatusCode } from "hono/utils/http-status"
 
+type ServiceResponse<T> = [T, ContentfulStatusCode]
 
-const app = new Hono()
+class CallbackService {
+  static async show(query: CallbackOAuthScheme, db: DrizzleD1Database, client: Google): Promise<ServiceResponse<APIResponse>> {
+    const { code, state } = query
 
-app.get('/', async (c: Context) => {
-  const code = c.req.query('code')
-  if (!code) {
-    return c.json({
-      error: true,
-      message: 'code is required'
-    }, 400)
+    const result = await client.oauth.token(code)
+    if ("error" in result) {
+      return [{
+        error: true,
+        message: "Failed to exchange token",
+        details: result
+      }, 400]
+    }
+
+    const token = result.id_token
+    client.accessToken = result.id_token
+
+    const profile = await client.user.profile()
+    const { email } = profile
+
+    return [{ error: false, message: "success", data: null }, 200]
   }
+}
 
-
-})
-
-export default app
+export { CallbackService }
