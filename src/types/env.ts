@@ -1,21 +1,17 @@
 import { D1Database } from "@cloudflare/workers-types"
 import { DrizzleD1Database } from "drizzle-orm/d1"
+import { Google } from "google-oauth-lib"
 import { Context } from "hono"
 
 type Env = {
   Variables: {
-    // Google OAuth Configure
-    GOOGLE_CLIENT_ID: string,
-    GOOGLE_CLIENT_SECRET: string,
-
-    // API Configure
-    RESEND_API_TOKEN?: string,
-
-
-    JWT_SECRET: string,
-
+    GOOGLE_CLIENT_ID: string
+    GOOGLE_CLIENT_SECRET: string
+    RESEND_API_TOKEN?: string
+    JWT_SECRET: string
 
     db: DrizzleD1Database
+    googleClient: Google
   },
   Bindings: {
     DB: D1Database
