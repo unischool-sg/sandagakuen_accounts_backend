@@ -5,4 +5,7 @@ const callbackOAuthScheme = z.object({
   state: z.string(),
 })
 
+type CallbackOAuthScheme = z.infer<typeof callbackOAuthScheme>
+
 export { callbackOAuthScheme }
+export type { CallbackOAuthScheme }
