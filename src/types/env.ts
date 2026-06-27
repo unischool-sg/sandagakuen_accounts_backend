@@ -3,6 +3,7 @@ import { DrizzleD1Database } from "drizzle-orm/d1"
 import { Google } from "google-oauth-lib"
 import { Context } from "hono"
 
+
 type Env = {
   Variables: {
     GOOGLE_CLIENT_ID: string
@@ -11,7 +12,7 @@ type Env = {
     JWT_SECRET: string
 
     db: DrizzleD1Database
-    googleClient: Google
+    client: Google
   },
   Bindings: {
     DB: D1Database
