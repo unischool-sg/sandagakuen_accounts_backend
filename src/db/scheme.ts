@@ -144,12 +144,7 @@ const authorizationCodes = sqliteTable('authorization_codes', {
   createdAt: timestamp('created_at').default(new Date()),
 })
 
-const relations = defineRelations({
-  users, gradeLevels, departments,
-  teachers, classes, students,
-  enrollments, sessions, externalIdentities,
-  oauthClients, authorizationCodes
-})
+
 
 export {
   users,
@@ -165,4 +160,3 @@ export {
   authorizationCodes,
 }
 
-export { relations }
