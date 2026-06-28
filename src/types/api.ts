@@ -12,8 +12,8 @@ type ErrorResponse<T = null> = {
   details: T
 }
 
-type APIResponse = BaseResponse & (
-  SuccessResponse | ErrorResponse
+type APIResponse<ST = null, ET = null> = BaseResponse & (
+  SuccessResponse<ST> | ErrorResponse<ET>
 )
 
 export type { BaseResponse, SuccessResponse, ErrorResponse }
