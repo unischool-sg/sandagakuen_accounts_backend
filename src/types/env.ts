@@ -10,6 +10,7 @@ type Env = {
     GOOGLE_CLIENT_SECRET: string
     RESEND_API_TOKEN?: string
     JWT_SECRET: string
+    BASE_URL: string
 
     db: DrizzleD1Database
     client: Google
