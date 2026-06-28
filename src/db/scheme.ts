@@ -1,12 +1,12 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
-import { defineRelations } from 'drizzle-orm'
+
 
 // ========== 列タイプヘルパー ==========
 const timestamp = (name: string) => integer(name, { mode: 'timestamp' })
 const bool = (name: string) => integer(name, { mode: 'boolean' }).default(false)
 
 // ========== 列挙型 ==========
-const userRoles = ['student:junior', 'student:high', 'teacher', 'staff', 'admin'] as const
+const userRoles = ['user', 'student: junior', 'student: high', 'teacher', 'staff', 'admin'] as const
 const enrollmentStatuses = ['enrolled', 'graduated', 'transferred', 'withdrawn', 'suspended'] as const
 const gradeCategories = ['junior_high', 'senior_high'] as const
 
@@ -16,7 +16,6 @@ const users = sqliteTable('users', {
 
   username: text('username').unique(),
   name: text('name'),
-  nameKana: text('name_kana'),
   email: text('email').unique(),
   emailVerified: bool('email_verified'),
   avatarUrl: text('avatar_url'),
