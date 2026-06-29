@@ -16,6 +16,8 @@ type Env = {
     RESEND_API_TOKEN?: string
     JWT_SECRET: string
     BASE_URL: string
+    FRONTEND_URL: string
+    COOKIE_DOMAIN?: string
   },
 }
 
