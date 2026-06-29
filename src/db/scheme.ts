@@ -105,7 +105,7 @@ const externalIdentities = sqliteTable('external_identities', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id),
   provider: text('provider'),
-  providerAccountId: text('provider_account_id'),
+  providerAccountId: text('provider_account_id').unique(),
   accessToken: text('access_token'),
   refreshToken: text('refresh_token'),
   tokenExpiresAt: timestamp('token_expires_at'),
