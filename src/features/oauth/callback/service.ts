@@ -1,18 +1,53 @@
-import { Hono, Context } from 'hono'
+import { DrizzleD1Database } from "drizzle-orm/d1"
+import type { APIResponse } from "../../../types/api"
+import { CallbackOAuthScheme } from "./scheme"
+import { Google } from "google-oauth-lib"
+import { CallbackRepository } from "./repository"
+import { ServiceResponse } from "../../../libs/response"
+import { randomUUID } from "../../../libs/crypto"
+import { users } from "../../../db/scheme"
+import { success, failure } from "../../../libs/response"
 
+class CallbackService {
+  static async show(query: CallbackOAuthScheme, db: DrizzleD1Database, client: Google): Promise<ServiceResponse<APIResponse<typeof users.$inferInsert, unknown>>> {
+    const { code } = query
 
-const app = new Hono()
+    const repository = new CallbackRepository(db)
 
-app.get('/', async (c: Context) => {
-  const code = c.req.query('code')
-  if (!code) {
-    return c.json({
-      error: true,
-      message: 'code is required'
-    }, 400)
+    const result = await client.oauth.token(code)
+    if ("error" in result) {
+      return [failure(result, "Failed to exchange token"), 400]
+    }
+
+    const token = result.id_token
+    client.accessToken = token
+
+    const profile = await client.user.profile()
+    const { email } = profile
+    if (!email) return [failure(null, "Failed to get email"), 400]
+
+    const isEmailUsed = await repository.findUser({ email })
+    if (isEmailUsed) return [failure(null, "This resource is conflicted"), 409]
+
+    try {
+      const uid = randomUUID()
+      const userData = {
+        id: uid,
+        username: email,
+        name: profile.name,
+        emailVerified: false,
+        avatarUrl: profile.avatar,
+        role: 'user' as const,
+        status: 'suspended' as const,
+      }
+      await repository.insert(userData)
+
+      return [success(userData, "Success to create user"), 201]
+    } catch (e) {
+      console.error("Failed to create user", e)
+      return [failure(null, "Internal server error"), 500]
+    }
   }
+}
 
-
-})
-
-export default app
+export { CallbackService }
