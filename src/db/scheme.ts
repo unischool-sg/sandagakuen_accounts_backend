@@ -62,7 +62,7 @@ const classes = sqliteTable('classes', {
   academicYear: integer('academic_year'),
   gradeLevelId: text('grade_level_id').references(() => gradeLevels.id),
   name: text('name'),
-  homeroomTeacherId: text('homeroom_teacher_id').references(() => users.id),
+  homeroomTeacherId: text('homeroom_teacher_id').references(() => teachers.id),
 
   createdAt: timestamp('created_at').default(new Date()),
 })
