@@ -44,10 +44,8 @@ class CallbackService {
 
       return [success(userData, "Success to create user"), 201]
     } catch (e) {
-      const parsedError: Error = e as Error
-      console.log(parsedError)
-
-      return [failure(parsedError, parsedError.message), 400]
+      console.error("Failed to create user", e)
+      return [failure(null, "Internal server error"), 500]
     }
   }
 }
