@@ -44,6 +44,8 @@ src/
             └── repository.ts # DBアクセス層
 ```
 
+参考：<https://zenn.dev/ashunar0/articles/1ba94a110d8622>
+
 ### レイヤーパターン
 
 各機能は **Route → Service → Repository** の3層で構成されます。
