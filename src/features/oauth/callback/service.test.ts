@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { Google } from "google-oauth-lib"
 import { CallbackService } from "./service"
-import { users } from "../../../db/scheme"
 import { verifyToken } from "../../../libs/jwt"
 
 // Mock google-oauth-lib
