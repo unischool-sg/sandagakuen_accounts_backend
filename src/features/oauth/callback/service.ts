@@ -6,7 +6,7 @@ import { CallbackRepository } from "./repository"
 import { ServiceResponse } from "../../../libs/response"
 import { randomUUID } from "../../../libs/crypto"
 import { users } from "../../../db/scheme"
-import { success, failure } from "../../../libs/response"
+import { success, failure, serviceResponse } from "../../../libs/response"
 import { generateToken } from "../../../libs/jwt"
 
 class CallbackService {
@@ -30,11 +30,14 @@ class CallbackService {
 
     const profile = await client.user.profile()
     const { email } = profile
-    if (!email) return [failure(null, "Failed to get email"), 400]
+    if (!email) return serviceResponse(
+      failure(null, "Failed to get email"),
+      400
+    )
 
     let user: typeof users.$inferSelect | null = null
     const existingUsers = await repository.findUser({ email })
-    
+
     if (existingUsers && existingUsers.length > 0) {
       user = existingUsers[0]
     } else {
@@ -51,15 +54,15 @@ class CallbackService {
           status: 'suspended' as const,
         }
         await repository.insert(userData)
-        
+
         const createdUsers = await repository.findUser({ email })
         if (!createdUsers || createdUsers.length === 0) {
-          return [failure(null, "Failed to retrieve created user"), 500]
+          return serviceResponse(failure(null, "Failed to retrieve created user"), 400)
         }
         user = createdUsers[0]
       } catch (e) {
         console.error("Failed to create user", e)
-        return [failure(null, "Internal server error"), 500]
+        return serviceResponse(failure(null, "Internal server error"), 500)
       }
     }
 
@@ -72,10 +75,12 @@ class CallbackService {
         status: user.status
       }, jwtSecret)
 
-      return [success({ user, token: jwtToken }, "Success to authenticate"), 200]
+      return serviceResponse(success({
+        user, token: jwtToken
+      }, "Success to authenticate"), 200)
     } catch (e) {
       console.error("Failed to generate JWT", e)
-      return [failure(null, "Failed to generate session"), 500]
+      return serviceResponse(failure(null, "Failed to generate session"), 500)
     }
   }
 }
