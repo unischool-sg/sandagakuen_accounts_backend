@@ -35,7 +35,7 @@ app.get('/', zValidator('query', callbackOAuthScheme), async (c) => {
     maxAge: 7200
   })
 
-  return c.redirect(`${frontendUrl}/_auth/callback?token=${result.data.token}`)
+  return c.redirect(`${frontendUrl}/_auth/callback`)
 })
 
 export default app
