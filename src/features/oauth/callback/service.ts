@@ -35,7 +35,7 @@ class CallbackService {
       400
     )
 
-    let user: typeof users.$inferSelect | null = null
+    let user: typeof users.$inferSelect
     const existingUsers = await repository.findUser({ email })
 
     if (existingUsers && existingUsers.length > 0) {
