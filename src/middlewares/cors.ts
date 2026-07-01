@@ -13,5 +13,5 @@ const corsConf = async (c, next) => {
     allowHeaders: ['Content-Type', 'Authorization'],
   })
   return corsMiddleware(c, next)
-})
+}
 
