@@ -6,10 +6,16 @@ import { CallbackRepository } from "./repository"
 import { ServiceResponse } from "../../../libs/response"
 import { randomUUID } from "../../../libs/crypto"
 import { users } from "../../../db/scheme"
-import { success, failure } from "../../../libs/response"
+import { success, failure, serviceResponse } from "../../../libs/response"
+import { generateToken } from "../../../libs/jwt"
 
 class CallbackService {
-  static async show(query: CallbackOAuthScheme, db: DrizzleD1Database, client: Google): Promise<ServiceResponse<APIResponse<typeof users.$inferInsert, unknown>>> {
+  static async show(
+    query: CallbackOAuthScheme,
+    db: DrizzleD1Database,
+    client: Google,
+    jwtSecret: string
+  ): Promise<ServiceResponse<APIResponse<{ user: typeof users.$inferSelect; token: string }, unknown>>> {
     const { code } = query
 
     const repository = new CallbackRepository(db)
@@ -24,28 +30,57 @@ class CallbackService {
 
     const profile = await client.user.profile()
     const { email } = profile
-    if (!email) return [failure(null, "Failed to get email"), 400]
+    if (!email) return serviceResponse(
+      failure(null, "Failed to get email"),
+      400
+    )
 
-    const isEmailUsed = await repository.findUser({ email })
-    if (isEmailUsed) return [failure(null, "This resource is conflicted"), 409]
+    let user: typeof users.$inferSelect
+    const existingUsers = await repository.findUser({ email })
+
+    if (existingUsers && existingUsers.length > 0) {
+      user = existingUsers[0]
+    } else {
+      try {
+        const uid = randomUUID()
+        const userData = {
+          id: uid,
+          username: email,
+          email: email,
+          name: profile.name,
+          emailVerified: false,
+          avatarUrl: profile.avatar,
+          role: 'user' as const,
+          status: 'suspended' as const,
+        }
+        await repository.insert(userData)
+
+        const createdUsers = await repository.findUser({ email })
+        if (!createdUsers || createdUsers.length === 0) {
+          return serviceResponse(failure(null, "Failed to retrieve created user"), 400)
+        }
+        user = createdUsers[0]
+      } catch (e) {
+        console.error("Failed to create user", e)
+        return serviceResponse(failure(null, "Internal server error"), 500)
+      }
+    }
 
     try {
-      const uid = randomUUID()
-      const userData = {
-        id: uid,
-        username: email,
-        name: profile.name,
-        emailVerified: false,
-        avatarUrl: profile.avatar,
-        role: 'user' as const,
-        status: 'suspended' as const,
-      }
-      await repository.insert(userData)
+      const jwtToken = await generateToken({
+        id: user.id,
+        email: user.email || user.username,
+        name: user.name,
+        role: user.role,
+        status: user.status
+      }, jwtSecret)
 
-      return [success(userData, "Success to create user"), 201]
+      return serviceResponse(success({
+        user, token: jwtToken
+      }, "Success to authenticate"), 200)
     } catch (e) {
-      console.error("Failed to create user", e)
-      return [failure(null, "Internal server error"), 500]
+      console.error("Failed to generate JWT", e)
+      return serviceResponse(failure(null, "Failed to generate session"), 500)
     }
   }
 }

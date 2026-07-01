@@ -6,7 +6,7 @@ const app = new Hono<Env>()
 
 app.get('/', (c) => {
   const client = c.get('client')
-  const baseUrl = c.get('BASE_URL')
+  const baseUrl = c.env.BASE_URL
   const redirectUrl = OAuthService.show(client, baseUrl)
   return c.redirect(redirectUrl)
 })

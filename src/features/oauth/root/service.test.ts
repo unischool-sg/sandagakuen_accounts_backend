@@ -4,18 +4,23 @@ import { OAuthService } from "./service"
 
 vi.mock("google-oauth-lib", () => {
   const mockUrl = vi.fn()
-  const mockOAuth = { url: mockUrl }
-  const MockGoogle = vi.fn(function () {
-    return { oauth: mockOAuth }
-  })
+  const MockGoogle = {
+    OAuth: vi.fn().mockImplementation(() => {
+      return {
+        oauth: {
+          url: mockUrl,
+        },
+      }
+    })
+  }
   return { Google: MockGoogle }
 })
 
 describe("OAuthService", () => {
   it("calls client.oauth.url with the correct parameters", () => {
-    const client = new Google()
+    const client = Google.OAuth({ clientId: "test", clientSecret: "test" })
     const mockUrl = client.oauth.url as ReturnType<typeof vi.fn>
-    mockUrl.mockReturnValue("https://accounts.google.com/o/oauth2/v2/auth?client_id=test&response_type=code&redirect_uri=http://localhost:8787/oauth/callback&scope=openid+email+profile&access_type=offline&prompt=consent&state=abc123")
+    mockUrl.mockReturnValue("https://accounts.google.com/o/oauth2/v2/auth?client_id=test&response_type=code&redirect_uri=http://localhost:8787/oauth/callback&scope=openid+email+profile&access_type=offline&prompt=consent")
 
     const result = OAuthService.show(client, "http://localhost:8787")
 

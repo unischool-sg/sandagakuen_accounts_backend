@@ -7,7 +7,9 @@
 		"nodejs_compat"
 	],
 	"vars": {
-		"MY_VAR": "my-variable"
+		"MY_VAR": "my-variable",
+		"FRONTEND_URL": "http://localhost:5173",
+		"COOKIE_DOMAIN": ""
 	},
 	"kv_namespaces": [
 		{
