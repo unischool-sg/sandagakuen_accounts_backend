@@ -12,7 +12,7 @@ class OAuthService {
       return serviceResponse(success({
         url
       }, "Success to create url"), 201)
-    } catch (e) {
+    } catch {
       return serviceResponse(failure(null, "Failed to get url"), 500)
     }
   }
